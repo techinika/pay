@@ -42,7 +42,6 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
 
-  // Determine if inputs should be disabled during processing
   const isDisabled: boolean =
     status === "loading" || status === "pending_approval";
 
@@ -50,7 +49,6 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
     e.preventDefault();
 
     if (!phoneNumber || !amount) {
-      // In a real app, use a custom modal instead of alert
       console.error("Please enter a valid phone number and amount.");
       onPaymentSubmit({
         error: "Please fill in both phone number and amount fields.",
@@ -58,7 +56,6 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
       return;
     }
 
-    // Basic validation for Rwandan number format (e.g., 078XXXXXXX or 073XXXXXXX)
     const phoneRegex: RegExp = /^(078|073|079)\d{7}$/;
     const amountValue: number = parseFloat(amount);
 
@@ -130,7 +127,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
       <div
         className={`p-4 mt-6 rounded-lg flex items-start space-x-3 transition-all duration-300 ${classes}`}
       >
-        <div className="flex-shrink-0 mt-0.5">{icon}</div>
+        <div className="shrink-0 mt-0.5">{icon}</div>
         <p className="text-sm font-medium leading-relaxed">{message}</p>
       </div>
     );
@@ -216,11 +213,8 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
         </button>
       </form>
       <div className="mt-4 text-center text-xs text-gray-400">
-        {/* Use optional chaining for window.currentOrderId for safety */}
         Transaction ID (on submission):{" "}
-        {status === "idle"
-          ? "Pending"
-          : (window as any).currentOrderId || "N/A"}
+        {status === "idle" ? "Pending" : generateOrderId() || "N/A"}
       </div>
     </div>
   );
@@ -230,73 +224,33 @@ const PayPage: React.FC = () => {
   const [status, setStatus] = useState<PaymentStatus>("idle");
   const [message, setMessage] = useState<string>("");
 
-  const mockApiCall = useCallback(async (payload: SubmissionData) => {
-    setStatus("loading");
-    setMessage("Connecting to payment gateway...");
-    currentOrderId = payload.orderId;
-
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    try {
-      if (payload.phoneNumber === "0780000000") {
-        throw new Error("Phone number blocked for test failure.");
-      }
-
-      const { orderId, amount, phoneNumber } =
-        payload as Required<SubmissionData>;
-
-      const mockResponse = {
-        ok: true,
-        status: 200,
-        json: async () => ({
-          message: "Payment initiated successfully.",
-          ref: "mock-ref-12345",
-        }),
-      };
-
-      const response = await mockResponse.json();
-
-      setStatus("pending_approval");
-      setMessage(
-        `Message sent to ${phoneNumber}. Please check your phone and approve the payment of ${amount} RWF.`
-      );
-
-      await new Promise((resolve) => setTimeout(resolve, 8000)); // Wait 8 seconds for approval
-
-      setStatus("success");
-      setMessage(
-        `🎉 Payment successful! Transaction ID: ${orderId}. Thank yourself for your payment of ${amount} RWF.`
-      );
-    } catch (error) {
+  const handlePaymentSubmit = useCallback(async (data: SubmissionData) => {
+    if (data.error) {
       setStatus("error");
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error occurred";
-      setMessage(`Payment failed: ${errorMessage}. Please try again.`);
+      setMessage(data.error);
+      return;
     }
-  }, []);
 
-  const handlePaymentSubmit = useCallback(
-    (data: SubmissionData) => {
-      if (data.error) {
-        setStatus("error");
-        setMessage(data.error);
-        return;
-      }
-
-      if (data.orderId && data.amount && data.phoneNumber) {
-        mockApiCall({
+    if (data.orderId && data.amount && data.phoneNumber) {
+      const paypackResponse = await fetch("/api/pay", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
           orderId: data.orderId,
           amount: data.amount,
           phoneNumber: data.phoneNumber,
-        });
-      } else {
-        // Should not happen if client-side validation passes, but good for safety
-        setStatus("error");
-        setMessage("Missing transaction details.");
+        }),
+      });
+      if (paypackResponse.ok) {
+        setStatus("success");
       }
-    },
-    [mockApiCall]
-  );
+    } else {
+      setStatus("error");
+      setMessage("Missing transaction details.");
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
