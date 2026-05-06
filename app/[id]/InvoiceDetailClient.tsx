@@ -134,7 +134,7 @@ export default function InvoiceDetailClient({
     if (isCancelled) {
       return (
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-100 text-red-800 rounded-lg font-semibold">
-          Cancelled
+          CANCELLED
         </div>
       );
     }

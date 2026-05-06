@@ -7,10 +7,14 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 async function fetchInvoice(id: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_PROJECT_URL || "https://api.techinika.com";
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    "http://localhost:3000";
   const res = await fetch(`${baseUrl}/api/invoices/${id}`, {
     cache: "no-store",
   });
@@ -36,13 +40,13 @@ function NotFound() {
             Invoice Not Found
           </h1>
           <p className="text-slate-600 mb-8">
-            We couldn&apos;t find an invoice with this ID. The invoice may have been 
-            removed or the link may be incorrect.
+            We couldn&apos;t find an invoice with this ID. The invoice may have
+            been removed or the link may be incorrect.
           </p>
           <div className="space-y-3">
             <Link
               href="/"
-              className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors"
+              className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-primary hover:bg-primary/80 text-white font-semibold rounded-xl transition-colors"
             >
               <Search className="w-4 h-4" />
               Search for Invoice
@@ -76,11 +80,12 @@ export default async function InvoicePage({ params }: PageProps) {
               Invalid Invoice ID
             </h1>
             <p className="text-slate-600 mb-8">
-              The invoice ID format is invalid. Please check your link and try again.
+              The invoice ID format is invalid. Please check your link and try
+              again.
             </p>
             <Link
               href="/"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary/80 text-white font-semibold rounded-xl transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Search
@@ -102,7 +107,7 @@ export default async function InvoicePage({ params }: PageProps) {
       fallback={
         <div className="min-h-screen bg-slate-50 flex items-center justify-center">
           <div className="text-center">
-            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <p className="text-slate-600">Loading invoice...</p>
           </div>
         </div>
