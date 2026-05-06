@@ -1,0 +1,114 @@
+import { Suspense } from "react";
+import Link from "next/link";
+import { ArrowLeft, Receipt, Search, AlertTriangle } from "lucide-react";
+import InvoiceDetailClient from "./InvoiceDetailClient";
+
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+async function fetchInvoice(id: string) {
+  const baseUrl = process.env.NEXT_PUBLIC_PROJECT_URL || "https://api.techinika.com";
+  const res = await fetch(`${baseUrl}/api/invoices/${id}`, {
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    console.error("API error:", res.status, await res.text());
+    return null;
+  }
+
+  const data = await res.json();
+  return data.invoice;
+}
+
+function NotFound() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
+      <div className="max-w-md w-full">
+        <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-100 mb-6">
+            <Receipt className="w-10 h-10 text-red-500" />
+          </div>
+          <h1 className="text-2xl font-bold text-slate-900 mb-3">
+            Invoice Not Found
+          </h1>
+          <p className="text-slate-600 mb-8">
+            We couldn&apos;t find an invoice with this ID. The invoice may have been 
+            removed or the link may be incorrect.
+          </p>
+          <div className="space-y-3">
+            <Link
+              href="/"
+              className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors"
+            >
+              <Search className="w-4 h-4" />
+              Search for Invoice
+            </Link>
+            <Link
+              href="/"
+              className="flex items-center justify-center gap-2 w-full px-6 py-3 border-2 border-slate-200 hover:border-slate-300 text-slate-700 font-semibold rounded-xl transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Home
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default async function InvoicePage({ params }: PageProps) {
+  const { id } = await params;
+
+  if (!UUID_REGEX.test(id)) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full">
+          <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-yellow-100 mb-6">
+              <AlertTriangle className="w-10 h-10 text-yellow-600" />
+            </div>
+            <h1 className="text-2xl font-bold text-slate-900 mb-3">
+              Invalid Invoice ID
+            </h1>
+            <p className="text-slate-600 mb-8">
+              The invoice ID format is invalid. Please check your link and try again.
+            </p>
+            <Link
+              href="/"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Search
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const invoice = await fetchInvoice(id);
+
+  if (!invoice) {
+    return <NotFound />;
+  }
+
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-slate-600">Loading invoice...</p>
+          </div>
+        </div>
+      }
+    >
+      <InvoiceDetailClient invoice={invoice} />
+    </Suspense>
+  );
+}

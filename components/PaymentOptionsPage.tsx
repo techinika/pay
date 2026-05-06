@@ -104,8 +104,8 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 
     switch (status) {
       case "loading":
-        icon = <Loader2 className="w-5 h-5 animate-spin text-blue-500" />;
-        classes = "bg-blue-50 text-blue-700";
+        icon = <Loader2 className="w-5 h-5 animate-spin text-primary/70" />;
+        classes = "bg-blue-50 text-primary/80";
         break;
       case "pending_approval":
         icon = <Phone className="w-5 h-5 text-yellow-500" />;
@@ -136,7 +136,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
   return (
     <div className="bg-white p-6 md:p-8 rounded-2xl shadow-2xl w-full max-w-lg">
       <div className="flex items-center justify-center space-x-3 mb-6">
-        <CreditCard className="w-8 h-8 text-blue-600" />
+        <CreditCard className="w-8 h-8 text-primary" />
         <h1 className="text-3xl font-extrabold text-blue-900">Techinika Pay</h1>
       </div>
       <p className="text-gray-500 mb-8 text-center">
@@ -164,7 +164,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
                   setPhoneNumber(e.target.value)
                 }
                 disabled={isDisabled}
-                className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 border-2 disabled:bg-gray-50 disabled:cursor-not-allowed transition duration-150"
+                className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary/70 focus:ring-primary/70 p-3 border-2 disabled:bg-gray-50 disabled:cursor-not-allowed transition duration-150"
                 placeholder="078xxxxxxx"
               />
             </div>
@@ -189,7 +189,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
                   setAmount(e.target.value)
                 }
                 disabled={isDisabled}
-                className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 border-2 disabled:bg-gray-50 disabled:cursor-not-allowed transition duration-150"
+                className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary/70 focus:ring-primary/70 p-3 border-2 disabled:bg-gray-50 disabled:cursor-not-allowed transition duration-150"
                 placeholder="5000"
               />
             </div>
@@ -205,7 +205,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
             ${
               isDisabled
                 ? "bg-blue-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 hover:shadow-lg"
+                : "bg-primary hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-primary/70 focus:ring-offset-2 hover:shadow-lg"
             }
           `}
         >
