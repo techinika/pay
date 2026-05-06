@@ -125,7 +125,7 @@ export default function InvoiceDetailClient({
   const getStatusDisplay = () => {
     if (isPaid) {
       return (
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-lg font-semibold">
+        <div className="inline-flex text-center items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-lg font-semibold">
           <CheckCircle className="w-5 h-5" />
           PAID
         </div>
@@ -133,13 +133,13 @@ export default function InvoiceDetailClient({
     }
     if (isCancelled) {
       return (
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-100 text-red-800 rounded-lg font-semibold">
+        <div className="inline-flex text-center items-center gap-2 px-4 py-2 bg-red-100 text-red-800 rounded-lg font-semibold">
           CANCELLED
         </div>
       );
     }
     return (
-      <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg font-semibold">
+      <div className="inline-flex text-center items-center gap-2 px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg font-semibold">
         UNPAID
       </div>
     );
