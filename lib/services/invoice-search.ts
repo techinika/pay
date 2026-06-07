@@ -169,12 +169,17 @@ export async function searchInvoices(query: string): Promise<SearchResult[]> {
     }
 
     if (registrationIds.length === 0) {
-      const { data: authUserData } =
-        await supabaseAdmin.auth.admin.listUsers();
+      let matchingUsers: { id: string; email?: string | null }[] | undefined;
 
-      const matchingUsers = authUserData?.users.filter((u) =>
-        u.email?.toLowerCase().includes(query.toLowerCase()),
-      );
+      try {
+        const { data: authUserData } =
+          await supabaseAdmin.auth.admin.listUsers();
+        matchingUsers = authUserData?.users.filter((u) =>
+          u.email?.toLowerCase().includes(query.toLowerCase()),
+        );
+      } catch {
+        // skip auth user search when SUPABASE_SERVICE_KEY is not configured
+      }
 
       if (matchingUsers && matchingUsers.length > 0) {
         const userIds = matchingUsers.map((u) => u.id);
