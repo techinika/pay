@@ -1,3 +1,6 @@
+-- Enable pg_trgm extension for fuzzy search (must be before indexes using it)
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
 -- Add unique index on provider_deposit_id for safe webhook processing
 CREATE UNIQUE INDEX IF NOT EXISTS idx_event_invoices_provider_deposit_id
   ON event_invoices (provider_deposit_id)
@@ -13,6 +16,3 @@ CREATE INDEX IF NOT EXISTS idx_authors_email ON authors USING gin (email gin_trg
 -- Add confirmed_at timestamp for payment reconciliation
 ALTER TABLE event_invoices
   ADD COLUMN IF NOT EXISTS confirmed_at TIMESTAMPTZ;
-
--- Enable pg_trgm extension for fuzzy search
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
