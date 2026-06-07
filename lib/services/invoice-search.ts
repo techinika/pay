@@ -26,8 +26,7 @@ const INVOICE_SELECT = `
       full_description,
       start_date,
       end_date,
-      location,
-      image_url
+      location
     ),
     ticket:event_tickets(
       id,
@@ -75,7 +74,6 @@ function formatInvoiceData(data: FlatInvoice): SearchResult {
           start_date: rawEvent.start_date as string,
           end_date: rawEvent.end_date as string,
           location: rawEvent.location as string,
-          image_url: rawEvent.image_url as string,
         }
       : undefined,
     user: null,
@@ -97,7 +95,6 @@ export interface SearchResult {
     start_date: string;
     end_date: string;
     location: string;
-    image_url: string;
   };
   user: {
     name: string;

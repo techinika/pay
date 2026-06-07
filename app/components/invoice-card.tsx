@@ -8,7 +8,6 @@ interface EventInfo {
   start_date: string;
   end_date: string;
   location: string;
-  image_url: string;
 }
 
 interface InvoiceCardProps {
@@ -30,13 +29,9 @@ export function InvoiceCard({ id, amount, currency, status, event }: InvoiceCard
       className="block bg-white rounded-xl border border-slate-200 hover:border-primary/40 hover:shadow-lg transition-all overflow-hidden group"
     >
       <div className="p-5 flex items-center gap-4">
-        {event?.image_url ? (
-          <img src={event.image_url} alt={event.title} className="w-16 h-16 rounded-xl object-cover shrink-0" />
-        ) : (
-          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-blue-400 flex items-center justify-center shrink-0">
-            <Receipt className="w-7 h-7 text-white" />
-          </div>
-        )}
+        <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-blue-400 flex items-center justify-center shrink-0">
+          <Receipt className="w-7 h-7 text-white" />
+        </div>
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-slate-900 truncate">{event?.title || "Invoice"}</h3>
           <div className="flex items-center gap-3 mt-1 text-sm text-slate-500">

@@ -12,7 +12,6 @@ interface EventInfo {
   start_date: string;
   end_date: string;
   location: string;
-  image_url: string;
 }
 
 interface InvoiceItem {

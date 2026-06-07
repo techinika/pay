@@ -12,7 +12,7 @@ import { usePaymentState } from "./components/use-payment-state";
 
 interface EventInfo {
   id: string; title: string; description: string; start_date: string;
-  end_date: string; location: string; image_url: string;
+  end_date: string; location: string;
 }
 
 interface Invoice {
@@ -93,7 +93,7 @@ export default function InvoiceDetailClient({ invoice }: Props) {
         <Link href="/" className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors mb-6"><ArrowLeft className="w-4 h-4" />Back to Search</Link>
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
           <InvoiceHeader title={invoice.registration?.event?.title || "Event Invoice"}
-            invoiceId={invoice.id.slice(0, 8).toUpperCase()} imageUrl={invoice.registration?.event?.image_url}
+            invoiceId={invoice.id.slice(0, 8).toUpperCase()}
             isPaid={isPaid} isCancelled={isCancelled} />
           <div className="p-6 md:p-8">
             <div className="flex flex-col md:flex-row gap-8">

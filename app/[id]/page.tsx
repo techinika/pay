@@ -34,7 +34,7 @@ async function fetchInvoice(id: string) {
   if (regData) {
     const { data: eventResult } = await supabase
       .from("events")
-      .select("id, title, full_description, start_date, end_date, location, image_url")
+      .select("id, title, full_description, start_date, end_date, location")
       .eq("id", regData.event_id)
       .single();
     eventData = eventResult;
@@ -80,7 +80,6 @@ async function fetchInvoice(id: string) {
                 start_date: eventData.start_date,
                 end_date: eventData.end_date,
                 location: eventData.location,
-                image_url: eventData.image_url,
               }
             : undefined,
         }
