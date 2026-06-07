@@ -14,5 +14,5 @@ CREATE INDEX IF NOT EXISTS idx_authors_email ON authors USING gin (email gin_trg
 ALTER TABLE event_invoices
   ADD COLUMN IF NOT EXISTS confirmed_at TIMESTAMPTZ;
 
--- Enable pg_trgm extension for fuzzy search (requires superuser)
--- CREATE EXTENSION IF NOT EXISTS pg_trgm;
+-- Enable pg_trgm extension for fuzzy search
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
