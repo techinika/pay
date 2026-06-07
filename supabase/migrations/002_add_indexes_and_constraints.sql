@@ -1,6 +1,6 @@
--- Add unique constraint on provider_deposit_id for safe webhook processing
-ALTER TABLE event_invoices
-  ADD CONSTRAINT event_invoices_provider_deposit_id_key UNIQUE (provider_deposit_id)
+-- Add unique index on provider_deposit_id for safe webhook processing
+CREATE UNIQUE INDEX IF NOT EXISTS idx_event_invoices_provider_deposit_id
+  ON event_invoices (provider_deposit_id)
   WHERE provider_deposit_id IS NOT NULL;
 
 -- Add index on provider_reference for PesaPal IPN lookups
