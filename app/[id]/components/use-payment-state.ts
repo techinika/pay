@@ -95,12 +95,13 @@ export function usePaymentState(statusProp: string): [PaymentState, PaymentSette
   }, []);
 
   useEffect(() => {
+    const abort = new AbortController();
     async function loadConfig() {
       setCountriesLoading(true);
       try {
         const [configRes, availRes] = await Promise.all([
-          fetch("/api/pawapay/config?operationType=DEPOSIT"),
-          fetch("/api/pawapay/config?operationType=DEPOSIT"),
+          fetch("/api/pawapay/config?operationType=DEPOSIT", { signal: abort.signal }),
+          fetch("/api/pawapay/availability?operationType=DEPOSIT", { signal: abort.signal }),
         ]);
         const configJson = await configRes.json();
         if (configJson.success && configJson.data?.countries) {
@@ -119,12 +120,15 @@ export function usePaymentState(statusProp: string): [PaymentState, PaymentSette
           setProviderAvailability(map);
         }
       } catch (err) {
-        console.error("Failed to load pawaPay config:", err);
+        if ((err as Error).name !== "AbortError") {
+          console.error("Failed to load pawaPay config:", err);
+        }
       } finally {
-        setCountriesLoading(false);
+        if (!abort.signal.aborted) setCountriesLoading(false);
       }
     }
     loadConfig();
+    return () => abort.abort();
   }, []);
 
   const currentCountry = availableCountries.find((c) => c.country === selectedCountry);

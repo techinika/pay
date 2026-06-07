@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowLeft, Receipt, Search, AlertTriangle } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { ErrorBoundary } from "@/app/components/error-boundary";
 import InvoiceDetailClient from "./InvoiceDetailClient";
 
 interface PageProps {
@@ -180,7 +181,9 @@ export default async function InvoicePage({ params }: PageProps) {
         </div>
       }
     >
-      <InvoiceDetailClient invoice={invoice} />
+      <ErrorBoundary>
+        <InvoiceDetailClient invoice={invoice} />
+      </ErrorBoundary>
     </Suspense>
   );
 }

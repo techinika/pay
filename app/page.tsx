@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { SearchPage } from "@/app/components/search-page";
+import { ErrorBoundary } from "@/app/components/error-boundary";
 
 export default function HomePage() {
   return (
@@ -10,7 +11,9 @@ export default function HomePage() {
         </div>
       }
     >
-      <SearchPage />
+      <ErrorBoundary>
+        <SearchPage />
+      </ErrorBoundary>
     </Suspense>
   );
 }
