@@ -8,7 +8,7 @@ function verifySignature(
 ): boolean {
   if (!signature) return false;
   const secret = process.env.PAWAPAY_WEBHOOK_SECRET;
-  if (!secret) return true;
+  if (!secret) return false;
   const expected = crypto
     .createHmac("sha256", secret)
     .update(body)
@@ -90,10 +90,10 @@ export async function POST(req: NextRequest) {
       const payoutStatus =
         status === "COMPLETED" ? "confirmed" : "pending";
 
-      await supabase
+      const { error: payoutError } = await supabase
         .from("event_invoices")
         .update({
-          provider_payout_id: payoutId,
+          status: payoutStatus,
           provider_reference: body.providerTransactionId || null,
           payment_metadata: {
             payout_callback: body,
@@ -101,10 +101,14 @@ export async function POST(req: NextRequest) {
           },
         })
         .eq("provider_payout_id", payoutId);
+
+      if (payoutError) {
+        console.error("Failed to update invoice from payout callback:", payoutError);
+      }
     }
 
     if (refundId) {
-      await supabase
+      const { error: refundError } = await supabase
         .from("event_invoices")
         .update({
           provider_refund_id: refundId,
@@ -115,6 +119,10 @@ export async function POST(req: NextRequest) {
           },
         })
         .eq("provider_refund_id", refundId);
+
+      if (refundError) {
+        console.error("Failed to update invoice from refund callback:", refundError);
+      }
     }
 
     return NextResponse.json({ received: true });

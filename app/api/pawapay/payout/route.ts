@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
 
     const payoutId = generatePawaPayId();
 
-    await supabase
+    const { error: updateError } = await supabase
       .from("event_invoices")
       .update({
         provider_payout_id: payoutId,
@@ -32,6 +32,10 @@ export async function POST(req: NextRequest) {
         },
       })
       .eq("id", invoiceId);
+
+    if (updateError) {
+      console.error("Failed to update invoice with payout ID:", updateError);
+    }
 
     const result = await initiatePayout({
       payoutId,

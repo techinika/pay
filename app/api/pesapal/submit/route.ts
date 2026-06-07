@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    await supabase
+    const { error: updateError } = await supabase
       .from("event_invoices")
       .update({
         payment_method: "card",
@@ -52,6 +52,10 @@ export async function POST(req: NextRequest) {
         },
       })
       .eq("id", invoiceId);
+
+    if (updateError) {
+      console.error("Failed to update invoice with PesaPal order:", updateError);
+    }
 
     return NextResponse.json({
       success: true,

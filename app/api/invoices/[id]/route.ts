@@ -64,7 +64,7 @@ export async function GET(
 
       const { data: authorResult } = await supabase
         .from("authors")
-        .select("id, name, image_url, username, email")
+        .select("id, name, image_url, username")
         .eq("id", regData.user_id)
         .single();
       authorData = authorResult;
@@ -101,7 +101,7 @@ export async function GET(
       userDetails: authorData
         ? {
             name: authorData.name,
-            email: authorData.email || "",
+            email: "",
             image_url: authorData.image_url,
             username: authorData.username,
           }

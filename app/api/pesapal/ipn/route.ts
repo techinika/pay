@@ -21,7 +21,7 @@ async function processPayment(orderTrackingId: string) {
       return false;
     }
 
-    await supabase
+    const { error: updateError } = await supabase
       .from("event_invoices")
       .update({
         status: "confirmed",
@@ -35,11 +35,20 @@ async function processPayment(orderTrackingId: string) {
       })
       .eq("id", invoice.id);
 
+    if (updateError) {
+      console.error("Failed to update invoice from PesaPal IPN:", updateError);
+      return false;
+    }
+
     if (invoice.registration_id) {
-      await supabase
+      const { error: regError } = await supabase
         .from("event_registrations")
         .update({ status: "confirmed" })
         .eq("id", invoice.registration_id);
+
+      if (regError) {
+        console.error("Failed to update registration from PesaPal IPN:", regError);
+      }
     }
 
     return true;

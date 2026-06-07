@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
 
     const refundId = generatePawaPayId();
 
-    await supabase
+    const { error: updateError } = await supabase
       .from("event_invoices")
       .update({
         provider_refund_id: refundId,
@@ -40,6 +40,10 @@ export async function POST(req: NextRequest) {
         },
       })
       .eq("id", invoiceId);
+
+    if (updateError) {
+      console.error("Failed to update invoice with refund ID:", updateError);
+    }
 
     const result = await initiateRefund({
       refundId,

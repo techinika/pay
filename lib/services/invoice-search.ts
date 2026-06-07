@@ -169,9 +169,19 @@ export async function searchInvoices(query: string): Promise<SearchResult[]> {
       let matchingUsers: { id: string; email?: string | null }[] | undefined;
 
       try {
-        const { data: authUserData } =
-          await supabaseAdmin.auth.admin.listUsers();
-        matchingUsers = authUserData?.users.filter((u) =>
+        const allUsers: { id: string; email?: string | null }[] = [];
+        let page = 1;
+        let hasMore = true;
+        const perPage = 1000;
+        while (hasMore) {
+          const { data: authUserData } =
+            await supabaseAdmin.auth.admin.listUsers({ page, perPage });
+          if (!authUserData?.users?.length) break;
+          allUsers.push(...authUserData.users);
+          hasMore = authUserData.users.length >= perPage;
+          page++;
+        }
+        matchingUsers = allUsers.filter((u) =>
           u.email?.toLowerCase().includes(query.toLowerCase()),
         );
       } catch {
@@ -188,6 +198,15 @@ export async function searchInvoices(query: string): Promise<SearchResult[]> {
 
         if (regData) {
           registrationIds.push(...regData.map((r) => r.id));
+        }
+
+        const { data: emailAuthorData } = await supabase
+          .from("authors")
+          .select("id, name, image_url, username")
+          .in("id", userIds);
+
+        if (emailAuthorData) {
+          authorData = (authorData || []).concat(emailAuthorData);
         }
       }
     }
