@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowLeft, Receipt, Search, AlertTriangle } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 import InvoiceDetailClient from "./InvoiceDetailClient";
 
 interface PageProps {
@@ -11,21 +12,87 @@ const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 async function fetchInvoice(id: string) {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    process.env.NEXT_PUBLIC_APP_URL ||
-    "http://localhost:3000";
-  const res = await fetch(`${baseUrl}/api/invoices/${id}`, {
-    cache: "no-store",
-  });
+  const { data: invoiceData, error: invoiceError } = await supabase
+    .from("event_invoices")
+    .select("id, registration_id, amount, currency, status, payment_link, created_at")
+    .eq("id", id)
+    .single();
 
-  if (!res.ok) {
-    console.error("API error:", res.status, await res.text());
-    return null;
+  if (invoiceError || !invoiceData) return null;
+
+  const { data: regData } = await supabase
+    .from("event_registrations")
+    .select("id, event_id, user_id, ticket_id, status, answers, created_at")
+    .eq("id", invoiceData.registration_id)
+    .single();
+
+  let eventData = null;
+  let ticketData = null;
+  let authorData = null;
+
+  if (regData) {
+    const { data: eventResult } = await supabase
+      .from("events")
+      .select("id, title, full_description, start_date, end_date, location, image_url")
+      .eq("id", regData.event_id)
+      .single();
+    eventData = eventResult;
+
+    if (regData.ticket_id) {
+      const { data: ticketResult } = await supabase
+        .from("event_tickets")
+        .select("id, currency")
+        .eq("id", regData.ticket_id)
+        .single();
+      ticketData = ticketResult;
+    }
+
+    const { data: authorResult } = await supabase
+      .from("authors")
+      .select("id, name, image_url, username, email")
+      .eq("id", regData.user_id)
+      .single();
+    authorData = authorResult;
   }
 
-  const data = await res.json();
-  return data.invoice;
+  const currency = ticketData?.currency || invoiceData.currency;
+
+  return {
+    id: invoiceData.id,
+    registration_id: invoiceData.registration_id,
+    amount: Number(invoiceData.amount),
+    currency,
+    status: invoiceData.status,
+    payment_link: invoiceData.payment_link,
+    created_at: invoiceData.created_at,
+    registration: regData
+      ? {
+          id: regData.id,
+          status: regData.status,
+          answers: regData.answers,
+          created_at: regData.created_at,
+          event: eventData
+            ? {
+                id: eventData.id,
+                title: eventData.title,
+                description: eventData.full_description,
+                start_date: eventData.start_date,
+                end_date: eventData.end_date,
+                location: eventData.location,
+                image_url: eventData.image_url,
+              }
+            : undefined,
+        }
+      : undefined,
+    userDetails: authorData
+      ? {
+          name: authorData.name,
+          email: authorData.email || "",
+          image_url: authorData.image_url,
+          username: authorData.username,
+        }
+      : undefined,
+  };
 }
 
 function NotFound() {

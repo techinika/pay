@@ -3,14 +3,14 @@ import { supabase } from "@/lib/supabase";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
 
     const { data: invoiceData, error: invoiceError } = await supabase
       .from("event_invoices")
-      .select("*")
+      .select("id, registration_id, amount, currency, status, payment_link, created_at")
       .eq("id", id)
       .single();
 
@@ -18,26 +18,26 @@ export async function GET(
       if (invoiceError.code === "PGRST116") {
         return NextResponse.json(
           { error: "Invoice not found" },
-          { status: 404 }
+          { status: 404 },
         );
       }
       console.error("Invoice fetch error:", invoiceError);
       return NextResponse.json(
         { error: "Failed to fetch invoice" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     if (!invoiceData) {
       return NextResponse.json(
         { error: "Invoice not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     const { data: regData } = await supabase
       .from("event_registrations")
-      .select("*")
+      .select("id, event_id, user_id, ticket_id, status, answers, created_at")
       .eq("id", invoiceData.registration_id)
       .single();
 
@@ -48,7 +48,7 @@ export async function GET(
     if (regData) {
       const { data: eventResult } = await supabase
         .from("events")
-        .select("id, title, full_description, start_date, end_date, location")
+        .select("id, title, full_description, start_date, end_date, location, image_url")
         .eq("id", regData.event_id)
         .single();
       eventData = eventResult;
@@ -64,7 +64,7 @@ export async function GET(
 
       const { data: authorResult } = await supabase
         .from("authors")
-        .select("id, name, image_url, username")
+        .select("id, name, image_url, username, email")
         .eq("id", regData.user_id)
         .single();
       authorData = authorResult;
@@ -83,9 +83,6 @@ export async function GET(
       registration: regData
         ? {
             id: regData.id,
-            event_id: regData.event_id,
-            user_id: regData.user_id,
-            ticket_id: regData.ticket_id,
             status: regData.status,
             answers: regData.answers,
             created_at: regData.created_at,
@@ -97,6 +94,7 @@ export async function GET(
                   start_date: eventData.start_date,
                   end_date: eventData.end_date,
                   location: eventData.location,
+                  image_url: eventData.image_url,
                 }
               : undefined,
           }
@@ -104,7 +102,7 @@ export async function GET(
       userDetails: authorData
         ? {
             name: authorData.name,
-            email: "",
+            email: authorData.email || "",
             image_url: authorData.image_url,
             username: authorData.username,
           }
@@ -116,7 +114,7 @@ export async function GET(
     console.error("Fetch invoice error:", error);
     return NextResponse.json(
       { error: "Failed to fetch invoice" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

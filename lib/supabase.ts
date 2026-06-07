@@ -1,9 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_PROJECT_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SERVICE_KEY!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_API_KEY!;
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export interface EventInvoice {
   id: string;
@@ -13,6 +13,14 @@ export interface EventInvoice {
   status: "pending" | "confirmed" | "cancelled";
   payment_link: string | null;
   created_at: string;
+  payment_method?: "mobile_money" | "card" | null;
+  payment_provider?: "pawapay" | "pesapal" | null;
+  provider_deposit_id?: string | null;
+  provider_payout_id?: string | null;
+  provider_refund_id?: string | null;
+  provider_reference?: string | null;
+  phone_number?: string | null;
+  payment_metadata?: Record<string, unknown>;
   registration?: EventRegistration;
   event?: EventInfo;
   user?: UserInfo;
@@ -56,6 +64,14 @@ export type InvoiceWithDetails = {
   status: string;
   payment_link: string | null;
   created_at: string;
+  payment_method?: string | null;
+  payment_provider?: string | null;
+  provider_deposit_id?: string | null;
+  provider_payout_id?: string | null;
+  provider_refund_id?: string | null;
+  provider_reference?: string | null;
+  phone_number?: string | null;
+  payment_metadata?: Record<string, unknown>;
   registration: {
     id: string;
     status: string;

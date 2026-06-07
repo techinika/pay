@@ -72,16 +72,17 @@ body {
 
 .watermark::before {
   content: "UNPAID";
-  position: absolute;
+  position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) rotate(-30deg);
-  font-size: 4rem;
+  font-size: 6rem;
   font-weight: 900;
-  color: rgba(0, 255, 55, 0.1);
+  color: rgba(239, 68, 68, 0.08);
   pointer-events: none;
   white-space: nowrap;
-  z-index: 0;
+  z-index: 9999;
+  user-select: none;
 }
 
 @media (max-width: 640px) {
